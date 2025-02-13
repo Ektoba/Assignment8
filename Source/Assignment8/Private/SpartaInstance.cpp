@@ -82,12 +82,12 @@ FName USpartaInstance::GetCurrentLevelName()
 
 FName USpartaInstance::GetPrevLevelName()
 {
-	return LevelMapNames[FMath::Clamp(CurrentLevelIndex-1, 0, MaxLevels)];
+	return LevelMapNames[FMath::Clamp(CurrentLevelIndex-1, 0, MaxLevels-1)];
 }
 
 FName USpartaInstance::GetNextLevelName()
 {
-	return LevelMapNames[FMath::Clamp(CurrentLevelIndex + 1, 0, MaxLevels)];
+	return LevelMapNames[FMath::Clamp(CurrentLevelIndex + 1, 0, MaxLevels - 1)];
 }
 
 void USpartaInstance::RestartSetting()

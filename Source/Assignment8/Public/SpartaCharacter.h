@@ -37,6 +37,8 @@ protected:
 	void StartSprint(const struct FInputActionValue& Value);
 	UFUNCTION()
 	void StopSprint(const struct FInputActionValue& Value);
+	UFUNCTION()
+	void ShowMenu(const struct FInputActionValue& Value);
 protected:
 	void UpdateOverHeadHP();
 	void OnDeath();

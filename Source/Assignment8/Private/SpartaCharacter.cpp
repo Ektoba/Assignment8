@@ -8,6 +8,7 @@
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
 #include "SpartaState.h"
+#include "Define.h"
 ASpartaCharacter::ASpartaCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -90,6 +91,17 @@ void ASpartaCharacter::StopSprint(const struct FInputActionValue& Value)
 		GetCharacterMovement()->MaxWalkSpeed = NomalSpeed;
 	}
 }
+void ASpartaCharacter::ShowMenu(const struct FInputActionValue& Value)
+{
+	if (Value.Get<bool>())
+	{
+		if (ASpartaPlayerController* PlayerController = Cast<ASpartaPlayerController>(GetController()))
+		{
+			LOG_SCREEN("call ShowPlayMenu!");
+			PlayerController->ShowPlayMenu();
+		}
+	}
+}
 void ASpartaCharacter::UpdateOverHeadHP()
 {
 	if (!OverHeadWidget) 
@@ -156,6 +168,11 @@ void ASpartaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		ETriggerEvent::Completed,
 		this,
 		&ASpartaCharacter::StopJump);	
+	EnhancedInput->BindAction(
+		PlayerController->MenuAction,
+		ETriggerEvent::Triggered,
+		this,
+		&ASpartaCharacter::ShowMenu);
 }
 void ASpartaCharacter::BeginPlay()
 {

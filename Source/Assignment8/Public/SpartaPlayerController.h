@@ -49,6 +49,8 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Input")
 	class UInputAction* SprintAction;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category="UI")
+	class UInputAction* MenuAction;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category="UI")
 	TMap<EUIType,FSpartaWidget> Widgets;
 protected:
 	virtual void BeginPlay() override;

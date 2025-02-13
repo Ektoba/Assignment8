@@ -43,6 +43,8 @@ public:
 	FName GetPrevLevelName();
 	UFUNCTION(BlueprintCallable, Category = "GameData")
 	FName GetNextLevelName();
+	//UFUNCTION(BlueprintCallable, Category = "GameData")
+	//int32 GetTotalScore() const;
 public:
 	void RestartSetting();
 protected:
