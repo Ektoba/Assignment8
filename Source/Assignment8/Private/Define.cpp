@@ -1,0 +1,2 @@
+#include "Define.h"
+DEFINE_LOG_CATEGORY(HACKED_LOG);
