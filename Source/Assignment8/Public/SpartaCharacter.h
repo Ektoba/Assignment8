@@ -6,6 +6,12 @@
 #include "GameFramework/Character.h"
 #include "SpartaCharacter.generated.h"
 
+struct FBuffData
+{
+	FBuffData(float Time) : ExpriationTime(Time){}
+	float ExpriationTime;
+	FTimerHandle TimerHandle;
+};
 UCLASS()
 class ASSIGNMENT8_API ASpartaCharacter : public ACharacter
 {
@@ -18,12 +24,17 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 	class UCameraComponent* Camera;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
-	class UWidgetComponent* OverHeadWidget;
+	class UWidgetComponent* OverHeadWidgetHPText;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+	class UWidgetComponent* OverHeadWidgetHPBar;
 	float NomalSpeed;
 	float SprintSpeedMultiplier;
 	float SprintSpeed;
 	int32 MaxHelth;
 	int32 CurrentHelth;
+	float DefaultFieldofView;
+private:
+
 protected:
 	UFUNCTION()
 	void Move(const struct FInputActionValue& Value);
@@ -51,7 +62,12 @@ protected:
 		struct FDamageEvent const& DamageEvent,
 		AController* EventInstigator,
 		AActor* DamageCauser) override;
-
+public:
+	void ApplyBuff(FName BuffName, float Duration, FTimerDelegate TimerDelegate = nullptr);
+	void RemoveBuff(FName BuffName);
+	void ClearBuff();
+private:
+	TMap<FName, FBuffData> BuffTimers;
 public:
 	void AddCurrentHP(int32 HP);
 	int32 GetMaxHelth() const;

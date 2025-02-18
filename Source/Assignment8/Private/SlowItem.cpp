@@ -24,12 +24,18 @@ void ASlowItem::ActivateItem(AActor* Activator)
 		OriginalSpeed = ActivatorPlayer->GetMovementComponent()->GetMaxSpeed();
 		ReductionSpeed = OriginalSpeed * ReductionRate;		
 		SetActorRedctionSpeed();
-		GetWorldTimerManager().SetTimer(
-			ReductionRateTimer,
-			this,
-			&ASlowItem::SetActorOriginSpeed,
-			ReductionDuration,
-			false);
+		FTimerDelegate TimerDelegate;
+		TimerDelegate.BindLambda(
+			[this]()->void
+			{
+			if (UCharacterMovementComponent* Movement = Cast<UCharacterMovementComponent>(ActivatorPlayer->GetMovementComponent()))
+			{
+				Movement->MaxWalkSpeed = OriginalSpeed;
+				ActivatorPlayer->RemoveBuff("SlowMove");
+			}
+			this->bHasActivated = false;
+			});
+		ActivatorPlayer->ApplyBuff("SlowMove", ReductionDuration, TimerDelegate);
 	}
 }
 
@@ -41,17 +47,5 @@ void ASlowItem::SetActorRedctionSpeed()
 		{
 			Movement->MaxWalkSpeed *= ReductionRate;
 		}
-	}
-}
-
-void ASlowItem::SetActorOriginSpeed()
-{
-	if (ActivatorPlayer)
-	{
-		if (UCharacterMovementComponent* Movement = Cast<UCharacterMovementComponent>(ActivatorPlayer->GetMovementComponent()))
-		{
-			Movement->MaxWalkSpeed = OriginalSpeed;
-		}
-		bHasActivated = false;
 	}
 }

@@ -5,8 +5,9 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "ItemInterface.h"
+#include "SpartaCharacter.h"
+#include "SpartaPlayerController.h"
 #include "BaseItem.generated.h"
-
 UCLASS()
 class ASSIGNMENT8_API ABaseItem : public AActor, public IItemInterface
 {
@@ -26,7 +27,10 @@ protected:
 	UParticleSystem* PickupParticle;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item|Effects")
 	USoundBase* PickupSound;
-
+protected:
+	class ASpartaCharacter* SpartaPlayer;
+	class ASpartaPlayerController* SpartaController;
+	bool bIsOverlapping;
 protected:
 	class UAudioComponent* PickupSoundComponent;
 public:
@@ -43,7 +47,6 @@ public:
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComponent,
 		int32 OtherBodyIndex) override;
-
 	virtual void ActivateItem(AActor* Activator) override;
 	virtual FName GetItemType() const override;
 	virtual void DestroyItem();

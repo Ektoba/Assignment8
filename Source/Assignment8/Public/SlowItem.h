@@ -28,5 +28,4 @@ protected:
 	bool bHasActivated;
 protected:
 	void SetActorRedctionSpeed();
-	void SetActorOriginSpeed();
 };

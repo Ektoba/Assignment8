@@ -8,6 +8,8 @@
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
 #include "SpartaPlayerController.h"
+#include "SpartaCharacter.h"
+#include "ExplodeObstacle.h"
 void ASpartaState::BeginPlay()
 {
 	Super::BeginPlay();
@@ -74,16 +76,25 @@ void ASpartaState::NextWave()
 
 	GetWorldTimerManager().ClearTimer(LevelTimerHandle);
 
-	LevelDuration = FMath::RandRange(1.f, 10.f);
 	GetWorldTimerManager().SetTimer(
 		LevelTimerHandle,
 		this,
 		&ASpartaState::OnLevelTimeUp,
-		LevelDuration,
+		FMath::RandRange(10.f, LevelDuration),
 		false
 	);
 	SpawnedCoinCount = 0;
 	CollectedCoinCount = 0;
+
+	if (SpikeTimer.IsValid())
+	{
+		GetWorldTimerManager().ClearTimer(SpikeTimer);		
+
+	}
+	if (ExplodeTimer.IsValid())
+	{
+		GetWorldTimerManager().ClearTimer(ExplodeTimer);
+	}
 
 	if (SpartaController)
 	{
@@ -111,20 +122,53 @@ void ASpartaState::ItemSpawnStart()
 			}
 		}
 	}
-
-	// 현재 맵에 배치된 SpawnVolume을 찾아 아이템을 스폰한다.
-	ItemSpawnCount = FMath::RandRange(20, 50);
-
 	TArray<AActor*> FoundVolumes;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASpawnVolume::StaticClass(), FoundVolumes);
 
-	for (int32 i = 0; i < ItemSpawnCount; ++i)
+	for (int32 i = 0; i < FMath::RandRange(20, 50); ++i)
 	{
 		if (!FoundVolumes.IsEmpty())
 		{
 			if (ASpawnVolume* SpawnVolume = Cast<ASpawnVolume>(FoundVolumes[0]))
 			{
 				AActor* SpawnActor = SpawnVolume->SpawnRandomItem();
+				
+				switch (WaveCount)
+				{
+				case 1:
+					if (!SpikeTimer.IsValid())
+					{
+						FTimerDelegate Delegate;
+						Delegate.BindLambda([this, SpawnVolume]() {
+							if (Wave2SpawnItem)
+								SpawnVolume->SpawnItem(Wave2SpawnItem);
+							});
+						GetWorldTimerManager().SetTimer(SpikeTimer,
+							Delegate,
+							1.f,
+							true);
+					}
+					break;
+				case 2:
+					if (!ExplodeTimer.IsValid())
+					{
+						FTimerDelegate Delegate;
+						Delegate.BindLambda([this, SpawnVolume]() {
+								if (Wave3SpawnItem)
+								{
+									AExplodeObstacle* Explode = Cast<AExplodeObstacle>(SpawnVolume->SpawnItem(Wave3SpawnItem));
+									Explode->Explode();
+								}
+							});
+						GetWorldTimerManager().SetTimer(ExplodeTimer,
+							Delegate,
+							1.f,
+							true);
+					}
+					break;
+				default:
+					break;
+				}
 				if (SpawnActor != nullptr && SpawnActor->IsA(ACoinItem::StaticClass()))
 				{
 					SpawnedCoinCount++;
@@ -167,6 +211,13 @@ void ASpartaState::OnGameOver()
 
 void ASpartaState::NextLevel()
 {
+	if (SpartaController)
+	{
+		if (ASpartaCharacter* Character = Cast<ASpartaCharacter>(SpartaController->GetLocalPlayer()))
+		{
+			Character->ClearBuff();
+		}
+	}
 	//	타이머 해제
 	GetWorldTimerManager().ClearTimer(LevelTimerHandle);
 	GetWorldTimerManager().ClearTimer(HUDUpdateTimerHandle);

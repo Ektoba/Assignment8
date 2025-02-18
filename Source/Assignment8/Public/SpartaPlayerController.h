@@ -14,9 +14,11 @@ enum class EUIType : uint8
 	GameOver UMETA(DisplayName = "GameOver"),
 	PlayMenu UMETA(DisplayName = "PlayMenu"),
 	Setting UMETA(DisplayName = "Setting"),
+	Blind UMETA(DisplayName = "Blind"),
 	Max UMETA(Hidden)
 };
-ENUM_RANGE_BY_FIRST_AND_LAST(EUIType, EUIType::HUD, EUIType::Setting);
+ENUM_RANGE_BY_COUNT(EUIType, EUIType::Max);
+//ENUM_RANGE_BY_FIRST_AND_LAST(EUIType, EUIType::HUD, EUIType::Max);
 
 USTRUCT(BlueprintType)
 struct FSpartaWidget
@@ -72,4 +74,6 @@ public:
 	void ShowSetting();
 	UFUNCTION(BlueprintCallable, Category="Menu")
 	void ShowGame();
+	UFUNCTION(BlueprintCallable, Category="Blind")
+	void ShowBlind();
 };

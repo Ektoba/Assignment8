@@ -69,6 +69,7 @@ void ASpartaPlayerController::BeginPlay()
 void ASpartaPlayerController::ShowGameHUD()
 {
 	ClearMenu();
+	SetPause(false);
 	Widgets[EUIType::HUD].Instance = CreateWidget<UUserWidget>(this, Widgets[EUIType::HUD].CustomWidgetClass);
 	if (Widgets[EUIType::HUD].Instance)
 	{
@@ -154,6 +155,21 @@ void ASpartaPlayerController::ShowGame()
 	ClearMenu();
 	SetPause(false);
 	ShowGameHUD();
+}
+
+void ASpartaPlayerController::ShowBlind()
+{
+	ClearMenu();
+	SetPause(false);
+	bShowMouseCursor = false;
+	
+	EUIType Type = EUIType::Blind;
+	Widgets[Type].Instance = CreateWidget<UUserWidget>(this, Widgets[Type].CustomWidgetClass);
+	if (Widgets[Type].Instance)
+	{
+		Widgets[Type].Instance->AddToViewport();
+		SetInputMode(FInputModeGameOnly());
+	}
 }
 
 void ASpartaPlayerController::ClearMenu()
