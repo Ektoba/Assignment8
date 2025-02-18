@@ -1,0 +1,8 @@
+﻿,ItemName,ItemClass,SpawnChance
+BigCoinItem,BigCoinItem,/Script/Engine.Blueprint'/Game/BP/Item/BP_BigCoinItem.BP_BigCoinItem',10
+SmallCoinItem,SmallCoinItem,/Script/Engine.Blueprint'/Game/BP/Item/BP_SmallCoinItem.BP_SmallCoinItem',30
+HealingItem,HealingItem,/Script/Engine.Blueprint'/Game/BP/Item/BP_HealingItem.BP_HealingItem',10
+MineItem,MineItem,/Script/Engine.Blueprint'/Game/BP/Item/BP_MineItem.BP_MineItem',20
+ReverseControlItem,ReverseControlItem,/Script/Engine.Blueprint'/Game/BP/Item/BP_ReverseControlItem.BP_ReverseControlItem',10
+BlindItem,BlindItem,/Script/Engine.Blueprint'/Game/BP/Item/BP_BlindItem.BP_BlindItem',10
+SlowItem,SlowItem,/Script/Engine.Blueprint'/Game/BP/Item/BP_SlowItem.BP_SlowItem',10

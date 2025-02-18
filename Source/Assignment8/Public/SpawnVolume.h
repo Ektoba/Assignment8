@@ -23,10 +23,10 @@ public:
 public:
 	UFUNCTION(BlueprintCallable, Category = "Spawning")
 	AActor* SpawnRandomItem();
+	AActor* SpawnItem(TSubclassOf<AActor> Itemclass);
 protected:
 	virtual void BeginPlay() override;
 protected:
-	AActor* SpawnItem(TSubclassOf<AActor> Itemclass);
 	FItemSpawnRow* GetRandomItem() const;
 	FVector GetRandomPointInVolume() const;
 };

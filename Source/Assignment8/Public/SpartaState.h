@@ -27,11 +27,15 @@ protected:
 	//	레벨이 유지되는 시간
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Level")
 	float LevelDuration;
-	// 전체 레벨의 개수
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Level")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly,Category = "Item")
+	TSubclassOf<AActor> Wave2SpawnItem;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly,Category = "Item")
+	TSubclassOf<AActor> Wave3SpawnItem;
 	FTimerHandle LevelTimerHandle;
 	FTimerHandle HUDUpdateTimerHandle;
-	FTimerDelegate HUDUpdateDelegate;	
+	FTimerDelegate HUDUpdateDelegate;
+	FTimerHandle SpikeTimer;
+	FTimerHandle ExplodeTimer;
 private:
 	int32 WaveCount;
 	int32 MaxWave;

@@ -30,16 +30,24 @@ ASpartaCharacter::ASpartaCharacter()
 	CurrentHelth = MaxHelth;
 	GetCharacterMovement()->MaxWalkSpeed = NomalSpeed;
 
-	OverHeadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverHeadWidget"));
-	OverHeadWidget->SetupAttachment(GetMesh());
-	OverHeadWidget->SetWidgetSpace(EWidgetSpace::Screen);
+	OverHeadWidgetHPText = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverHeadWidgetHPText"));
+	OverHeadWidgetHPText->SetupAttachment(GetMesh());
+	OverHeadWidgetHPText->SetWidgetSpace(EWidgetSpace::Screen);
+	OverHeadWidgetHPBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverHeadWidgetHPBar"));
+	OverHeadWidgetHPBar->SetupAttachment(GetMesh());
+	OverHeadWidgetHPBar->SetWidgetSpace(EWidgetSpace::Screen);
 }
 
 void ASpartaCharacter::Move(const struct FInputActionValue& Value)
 {
 	if (!Controller) return;
 
-	const FVector2D MoveInput = Value.Get<FVector2D>();
+	FVector2D MoveInput = Value.Get<FVector2D>();
+
+	if (BuffTimers.Contains("ReverseControl"))
+	{
+		MoveInput *= -1.f;
+	}
 
 	if (!FMath::IsNearlyZero(MoveInput.X))
 	{
@@ -61,7 +69,6 @@ void ASpartaCharacter::Look(const struct FInputActionValue& Value)
 
 void ASpartaCharacter::StartJump(const struct FInputActionValue& Value)
 {
-	// Jump 에는 Controller에는 Controller를 nullcheck 하는 로직이 있기에 굳이 넣지 않는다.
 	if (Value.Get<bool>())
 	{
 		Jump();
@@ -104,17 +111,23 @@ void ASpartaCharacter::ShowMenu(const struct FInputActionValue& Value)
 }
 void ASpartaCharacter::UpdateOverHeadHP()
 {
-	if (!OverHeadWidget) 
+	if (!OverHeadWidgetHPText || !OverHeadWidgetHPBar)
 		return;
 
-	UUserWidget* OverheadWidgetInstance = OverHeadWidget->GetUserWidgetObject();
+	UUserWidget* OverheadWidgetHPTextInstance = OverHeadWidgetHPText->GetUserWidgetObject();
+	UUserWidget* OverheadWidgetHPBarInstance = OverHeadWidgetHPBar->GetUserWidgetObject();
 
-	if (!OverheadWidgetInstance) 
+	if (!OverheadWidgetHPTextInstance)
 		return;
-
-	if (UTextBlock* Widget = Cast<UTextBlock>(OverheadWidgetInstance->GetWidgetFromName(TEXT("HPText"))))
+	if (!OverheadWidgetHPBarInstance)
+		return;
+	if (UTextBlock* Widget = Cast<UTextBlock>(OverheadWidgetHPTextInstance->GetWidgetFromName(TEXT("HPText"))))
 	{
 		Widget->SetText(FText::FromString(FString::Printf(TEXT("%d / %d"), CurrentHelth, MaxHelth)));
+	}
+	if (UProgressBar* Widget = Cast<UProgressBar>(OverheadWidgetHPBarInstance->GetWidgetFromName(TEXT("HPBar"))))
+	{
+		Widget->SetPercent((float)CurrentHelth / (float)MaxHelth);
 	}
 }
 void ASpartaCharacter::Tick(float DeltaTime)
@@ -205,6 +218,49 @@ float ASpartaCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	}
 
 	return ActualDamage;
+}
+
+void ASpartaCharacter::ApplyBuff(FName BuffName, float Duration, FTimerDelegate TimerDelegate)
+{
+	float CurrentTime = GetWorld()->GetTimeSeconds();
+	float NewExpirationTime = CurrentTime + Duration;
+
+	if (BuffTimers.Contains(BuffName))
+	{
+		BuffTimers[BuffName].ExpriationTime = FMath::Max(BuffTimers[BuffName].ExpriationTime, NewExpirationTime - BuffTimers[BuffName].ExpriationTime);
+	}
+	else
+	{
+		BuffTimers.Add(BuffName, FBuffData(NewExpirationTime));
+	}
+
+	GetWorldTimerManager().ClearTimer(BuffTimers[BuffName].TimerHandle);
+
+	if (TimerDelegate.IsBound() == false)
+	{
+		TimerDelegate.BindLambda([BuffName,this]() {
+			RemoveBuff(BuffName); 
+			});
+	}
+
+	GetWorldTimerManager().SetTimer(BuffTimers[BuffName].TimerHandle, 
+		TimerDelegate,
+		Duration,
+		false
+		);
+}
+
+void ASpartaCharacter::RemoveBuff(FName BuffName)
+{
+	if (BuffTimers[BuffName].TimerHandle.IsValid())
+		GetWorldTimerManager().ClearTimer(BuffTimers[BuffName].TimerHandle);
+	BuffTimers.Remove(BuffName);
+}
+
+void ASpartaCharacter::ClearBuff()
+{
+	GetWorldTimerManager().ClearAllTimersForObject(this);
+	BuffTimers.Empty();
 }
 
 void ASpartaCharacter::AddCurrentHP(int32 HP)

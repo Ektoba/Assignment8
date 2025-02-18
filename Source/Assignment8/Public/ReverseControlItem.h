@@ -13,5 +13,13 @@ UCLASS()
 class ASSIGNMENT8_API AReverseControlItem : public ABaseItem
 {
 	GENERATED_BODY()
-	
+public:
+	AReverseControlItem();
+protected:
+	UPROPERTY()
+	float ReverseMoveDuration;
+	bool bHasActivity;
+	FTimerHandle ReverseMoveTimer;
+protected:
+	virtual void ActivateItem(AActor* Activator) override;
 };
